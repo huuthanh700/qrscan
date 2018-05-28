@@ -5,15 +5,16 @@
  */
 
 import React, { Component } from 'react';
-import { } from 'react-native';
-import QrScan from './src/screen/QrScan';
+import { View } from 'react-native';
+import { QrScanStack } from './src/Router';
 
-type Props = {};
 
-export default class App extends Component<Props> {
+export default class App extends Component {
   render() {
     return (
-      <QrScan />
+      <View style={{ flex: 1 }}>
+        <QrScanStack />
+      </View>
     );
   }
 }
