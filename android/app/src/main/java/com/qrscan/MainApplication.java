@@ -3,6 +3,9 @@ package com.qrscan;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.sbugert.rnadmob.RNAdMobPackage;
+import cl.json.RNSharePackage;
+import com.rnfs.RNFSPackage;
 import com.horcrux.svg.SvgPackage;
 import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
@@ -28,6 +31,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNAdMobPackage(),
+            new RNSharePackage(),
+            new RNFSPackage(),
             new SvgPackage(),
             new RCTQRCodeLocalImagePackage(),
             new PickerPackage(),

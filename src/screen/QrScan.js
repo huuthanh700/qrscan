@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Image, Dimensions, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Dimensions, StyleSheet, Alert, Platform, PermissionsAndroid } from 'react-native';
 import Headers from '../Header'
 import Camera from 'react-native-camera';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
@@ -13,7 +13,34 @@ export default class QrScan extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            flash: false
+            flash: false,
+            permission: false
+        }
+    }
+
+    componentWillMount() {
+        if (Platform.OS === 'android') {
+            this.requestCameraPermission();
+        }
+    }
+    
+    componentWillUnmount() {
+        this.camera = null;
+    }
+    requestCameraPermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA
+            )
+
+            if (granted || granted === PermissionsAndroid.RESULTS.GRANTED) {
+                this.setState({ permission: true })
+            } else {
+                this.setState({ permission: false })
+                Alert.alert('Notification', 'This app need permission camera for scan QR code.', [{ text: 'Ok' }]);
+            }
+        } catch (err) {
+            console.warn(err)
         }
     }
 
@@ -40,16 +67,17 @@ export default class QrScan extends Component {
             } else {
                 path = image.path.substr(7);
             }
-            console.log(path);
 
             QRCodeReadImage.decode(path, (error, result) => {
                 console.log("READ", error + '-' + result)
                 if (result) {
                     this.onBarCodeLocalRead(result);
                 } else {
-                    Alert.alert('Notification', 'Cannot read QR code from local image, try again !!', [{ text: 'Cancel' }]);
+                    Alert.alert('Notification', 'Cannot read QR code from local image, try again !!', [{ text: 'Ok' }]);
                 }
             });
+        }).catch(error => {
+
         });
     }
 
@@ -66,14 +94,16 @@ export default class QrScan extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <Headers backIcon={false} navigation={this.props.navigation} />
-                <Camera
-                    style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
-                    onBarCodeRead={this.onBarCodeScan}
-                    ref={cam => this.camera = cam}
-                    flashMode={Camera.constants.FlashMode.on}>
-                    <Image style={{ position: 'absolute', width: width, height: height }}
-                        source={require('../assets/bgQRcode.png')} />
-                </Camera>
+                {this.state.permission ?
+                    <Camera
+                        style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
+                        onBarCodeRead={this.onBarCodeScan}
+                        ref={cam => this.camera = cam}
+                        flashMode={Camera.constants.FlashMode.on}>
+                        <Image style={{ position: 'absolute', width: width, height: height }}
+                            source={require('../assets/bgQRcode.png')} />
+                    </Camera>
+                    : null}
                 <TouchableOpacity
                     style={{
                         position: 'absolute', position: 'absolute', top: 0, left: 10, marginTop: 20,

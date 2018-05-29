@@ -10,9 +10,12 @@
     "@remobile/react-native-qrcode-local-image": "^1.0.4",
     "react": "16.3.1",
     "react-native": "0.55.4",
+    "react-native-admob": "^2.0.0-beta.5",
     "react-native-camera": "^0.10.0",
+    "react-native-fs": "^2.9.12",
     "react-native-image-crop-picker": "^0.20.0",
     "react-native-qrcode-svg": "^5.0.6",
+    "react-native-share": "^1.0.23",
     "react-native-svg": "^6.3.1",
     "react-native-vector-icons": "^4.6.0",
     "react-navigation": "^2.0.4"

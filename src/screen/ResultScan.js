@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, Clipboard, TouchableOpacity, Alert, StyleSheet, Dimensions, Linking } from 'react-native';
 import Headers from '../Header'
-
+import { AdMobBanner } from 'react-native-admob'
 const width = Dimensions.get('window').width;
 
 export default class ResultScan extends Component {
@@ -14,7 +14,7 @@ export default class ResultScan extends Component {
 
     copyToClipboard(content) {
         Clipboard.setString(content);
-        Alert.alert('Notification', 'Copied', [{ text: 'Cancel' }]);
+        Alert.alert('Notification', 'Copied', [{ text: 'Ok' }]);
     }
 
     openBrowser(url) {
@@ -23,7 +23,7 @@ export default class ResultScan extends Component {
             if (supported) {
                 Linking.openURL(url)
             } else {
-                Alert.alert('Notification', 'Device not supported for open: (' + url + ') in browser', [{ text: 'Cancel' }]);
+                Alert.alert('Notification', 'Device not supported for open: (' + url + ') in browser', [{ text: 'Ok' }]);
             }
         })
     }
@@ -37,6 +37,14 @@ export default class ResultScan extends Component {
                     style={{ fontSize: 18, padding: 10 }}>
                     {params.result}
                 </Text>
+                <View style={{ width }}>
+                    <AdMobBanner
+                        adSize="smartBannerLandscape"
+                        // adUnitID="ca-app-pub-3940256099942544/6300978111"
+                        // adUnitID="ca-app-pub-5240213001950699/8246735508"
+                        adUnitID="ca-app-pub-4614657181481018/5479480678"
+                    />
+                </View>
                 <View
                     style={{ width, position: 'absolute', bottom: 0, flexDirection: 'row' }}>
                     <TouchableOpacity
@@ -50,7 +58,7 @@ export default class ResultScan extends Component {
                         <Text style={style.textButton}>Open With Browser</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </View >
         )
     }
 }
