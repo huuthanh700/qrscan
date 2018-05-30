@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
-import { CameraRoll, View, Text, TextInput, Platform, StyleSheet, Dimensions, TouchableOpacity, Image, ScrollView, TouchableWithoutFeedback, Keyboard, Alert, PermissionsAndroid } from 'react-native';
+import { AsyncStorage, CameraRoll, View, Text, TextInput, Platform, StyleSheet, Dimensions, TouchableOpacity, Image, ScrollView, TouchableWithoutFeedback, Keyboard, Alert, PermissionsAndroid } from 'react-native';
 import Headers from '../Header';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 import RNFS from "react-native-fs";
+import { AdMobBanner } from 'react-native-admob';
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 export default class GenerateQrCode extends Component {
     constructor(props) {
         super(props)
         this.state = {
             value: '',
-            genQR: false
+            genQR: false,
+            showAds: false
         }
     }
 
@@ -51,7 +54,38 @@ export default class GenerateQrCode extends Component {
         }
     }
 
-    shareQrcode() {
+    shareResult = async () => {
+        try {
+            const value = await AsyncStorage.getItem('shareIndex');
+            console.log(value)
+            if (value !== null) {
+                valueInt = parseInt(value);
+                if (valueInt >= 2) {
+                    valueInt = 0;
+                    await AsyncStorage.setItem('shareIndex', valueInt + '');
+                    this.openShareQrcode();
+                    this.setState({ showAds: true })
+                } else {
+                    valueInt = valueInt + 1;
+                    await AsyncStorage.setItem('shareIndex', valueInt + '');
+                    this.openShareQrcode();
+                    this.setState({ showAds: false })
+                }
+            } else {
+                try {
+                    await AsyncStorage.setItem('shareIndex', '0');
+                    this.openShareQrcode();
+                } catch (error) {
+                    // Error saving data
+                    this.openShareQrcode();
+                }
+            }
+        } catch (error) {
+            this.openShareQrcode();
+        }
+    }
+
+    openShareQrcode() {
         this.svg.toDataURL((base64) => {
             console.log(base64)
             Share.open({
@@ -65,6 +99,14 @@ export default class GenerateQrCode extends Component {
 
     saveRef(data) {
         this.svg = data;
+    }
+
+    genQRcode(value) {
+        if (value.trim() !== '') {
+            this.setState({ genQR: true })
+        } else {
+            Alert.alert('Notification', 'Empty text, try again !!', [{ text: 'Ok' }]);
+        }
     }
 
     render() {
@@ -121,14 +163,20 @@ export default class GenerateQrCode extends Component {
                                     flex: 1,
                                     width: 250, height: 250, marginTop: 10, backgroundColor: 'white', padding: 5
                                 }}>
-
                             </View>}
+                        <View style={{ width, justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
+                            <AdMobBanner
+                                adSize="smartBannerPortrait"
+                                adUnitID="ca-app-pub-4614657181481018/5479480678"
+                            // adUnitID="ca-app-pub-3940256099942544/6300978111"
+                            />
+                        </View>
                     </View>
                 </ScrollView>
                 {!this.state.genQR ?
                     <TouchableOpacity
                         style={style.button}
-                        onPress={() => { this.setState({ genQR: true }) }}>
+                        onPress={() => { this.genQRcode(this.state.value) }}>
                         <Text style={style.buttonText} > Generate</Text>
                     </TouchableOpacity>
                     : <View
@@ -140,10 +188,31 @@ export default class GenerateQrCode extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[style.buttonShare]}
-                            onPress={() => { this.shareQrcode() }}>
+                            onPress={() => { this.shareResult() }}>
                             <Text style={style.buttonText}>Share</Text>
                         </TouchableOpacity>
                     </View>}
+                {this.state.showAds ?
+                    <View style={{
+                        backgroundColor: 'rgba(0,0,0,0.8)', position: 'absolute', top: 0, left: 0, right: 0,
+                        width, height, justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        <TouchableOpacity
+                            style={{
+                                position: 'absolute', top: 10, right: 10, padding: 5,
+                                backgroundColor: '#03A9F4', borderWidth: 1,
+                                borderRadius: 10, borderColor: '#03A9F4', justifyContent: 'center', alignItems: 'center'
+                            }}
+                            onPress={() => { this.setState({ showAds: false }) }}>
+                            <Text style={{ color: 'white' }}>Close Ads</Text>
+                        </TouchableOpacity>
+                        <AdMobBanner
+                            adSize="mediumRectangle"
+                            // adUnitID="ca-app-pub-3940256099942544/6300978111"
+                            adUnitID="ca-app-pub-4614657181481018/5479480678"
+                        />
+                    </View>
+                    : null}
             </View >
         )
     }
